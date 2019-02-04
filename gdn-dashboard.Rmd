@@ -1,0 +1,130 @@
+---
+title: "Grand débat national - tableau de bord"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: menu
+    source_code: embed
+    vertical_layout: fill
+runtime: shiny
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+require(shinydashboard)
+require(flexdashboard)
+require(knitr)
+require(dplyr)
+require(ggplot2)
+require(Rpdb)
+
+# Pour les graphiques "sympas"
+require(htmltools)
+require(htmlwidgets)
+require(metricsgraphics)
+require(RColorBrewer)
+require(plotly)
+require(DT)
+
+# Chargement des données
+source("readdata.R")
+
+weekDaysOrder = c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche")
+
+```
+
+Synthèse
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### événements depuis le 1er janvier
+
+```{r}
+count <- rparsed$data$events$totalCount
+valueBox(count, icon="fa-calendar")
+```
+
+### événements par jour
+
+```{r}
+count <- round(rparsed$data$events$totalCount / listevt %>% count (startAt) %>% nrow(), digits = 0)
+valueBox(count, icon="fa-comments")
+```
+
+### événements à venir
+
+```{r}
+dt <- filter(listevt, startAt >= format(Sys.time(),"%Y-%m-%d"))
+count <- dt %>% nrow()
+valueBox(count, icon="fa-landmark")
+```
+
+### est la ville la plus impliquée
+
+```{r}
+dtcity <- listevt %>% count (Commune) %>% arrange(desc(n))
+dtcity <- filter(dtcity, !is.na(Commune))
+count <- dtcity$Commune [1]
+valueBox(count, icon="fa-landmark")
+```
+
+
+Row
+-----------------------------------------------------------------------
+
+### Création d'événements par jour
+
+```{r histo_createAt, echo=FALSE}
+dt <- listevt %>% count (createdAt)
+dt %>%
+  mjs_plot(x=createdAt, y=n, width=600, height=400) %>%
+  mjs_axis_x(xax_format="date") %>% 
+  mjs_line(area=TRUE)
+```
+
+### Création d'événements par heure toutes journées confondues
+
+```{r histo_hours, echo=FALSE}
+dt <- as.numeric(format(strptime(listevt$node.createdAt, format="%Y-%m-%d %H:%M:%S"), "%H"))
+mjs_plot(dt, width=500, height=400) %>%
+  mjs_histogram(bar_margin=2) %>%
+  mjs_labs(x_label="Heure",y_label="Nombre d'événements")
+```
+
+
+
+Row
+-----------------------------------------------------------------------
+### Répartition des événements entre début janvier et fin avril
+
+```{r histo_startAt, echo=FALSE}
+dt <- filter(listevt, startAt >="2019-01-10" & startAt <="2019-04-30")
+dt <- dt %>% count (startAt)
+dt %>%
+  mjs_plot(x=startAt, y=n, width=600, height=400) %>%
+  mjs_axis_x(xax_format="date") %>% 
+  mjs_line(area=TRUE)
+```
+
+
+### Programmation des événements en fonction des jours de la semaine
+
+```{r histo_weekdays, echo=FALSE}
+dt <- listevt %>% count (weekDay)
+plot_ly(dt, x=~weekDay, y=~n) %>% 
+  layout(yaxis = list(title="Nombre d'événements"), xaxis = list(title=""))
+```
+
+Détails par commune
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+### Liste des communes participants
+
+```{r dtcity, echo=FALSE}
+datatable(dtcity, options=list(pageLength = 10))
+```
