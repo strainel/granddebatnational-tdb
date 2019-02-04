@@ -28,7 +28,10 @@ require(plotly)
 require(DT)
 
 # Chargement des données
-source("readdata.R")
+filecache <- "cache/listevt.Rdata"
+if (!file.exists(filecache) | difftime(Sys.time(),file.info(filecache)$mtime) > 60)
+    source("readdata.R") else
+      load(filecache)
 
 weekDaysOrder = c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche")
 
@@ -43,14 +46,14 @@ Row
 ### événements depuis le 1er janvier
 
 ```{r}
-count <- rparsed$data$events$totalCount
-valueBox(count, icon="fa-calendar")
+#count <- rparsed$data$events$totalCount
+valueBox(totalcount, icon="fa-calendar")
 ```
 
 ### événements par jour
 
 ```{r}
-count <- round(rparsed$data$events$totalCount / listevt %>% count (startAt) %>% nrow(), digits = 0)
+count <- round(totalcount / listevt %>% count (startAt) %>% nrow(), digits = 0)
 valueBox(count, icon="fa-comments")
 ```
 
@@ -91,7 +94,7 @@ dt %>%
 dt <- as.numeric(format(strptime(listevt$node.createdAt, format="%Y-%m-%d %H:%M:%S"), "%H"))
 mjs_plot(dt, width=500, height=400) %>%
   mjs_histogram(bar_margin=2) %>%
-  mjs_labs(x_label="Heure",y_label="Nombre d'événements")
+  mjs_labs(x_label="Heure",y_label="Nombre d'Ã©vÃ©nements")
 ```
 
 
@@ -115,7 +118,7 @@ dt %>%
 ```{r histo_weekdays, echo=FALSE}
 dt <- listevt %>% count (weekDay)
 plot_ly(dt, x=~weekDay, y=~n) %>% 
-  layout(yaxis = list(title="Nombre d'événements"), xaxis = list(title=""))
+  layout(yaxis = list(title="Nombre d'Ã©vÃ©nements"), xaxis = list(title=""))
 ```
 
 Détails par commune
@@ -128,3 +131,11 @@ Row
 ```{r dtcity, echo=FALSE}
 datatable(dtcity, options=list(pageLength = 10))
 ```
+
+Crédits
+=======================================================================
+
+### Quelques remerciements
+
+- Christophe B. pour son aide sur [GraphQL](https://graphql.org/).
+- Les développeurs des packages [htmlwidgets](https://www.htmlwidgets.org/) et [metricsgraphics](https://metricsgraphicsjs.org/).
