@@ -61,7 +61,7 @@ listevt[,"node.endAt"] <- as.POSIXct(listevt[,"node.endAt"], format="%Y-%m-%d %H
 listevt$createdAt <- as.character(round(listevt[,"node.createdAt"], "day"))
 listevt$createdAt <- as.Date(listevt$createdAt, "%Y-%m-%d")
 
-# Ajout d'une variable startAt pour avoir le jour de crÃ©ation de l'event
+# Ajout d'une variable startAt pour avoir le jour de création de l'event
 listevt$startAt <- as.character(round(listevt[,"node.startAt"], "day"))
 listevt$startAt <- as.Date(listevt$startAt, "%Y-%m-%d")
 
@@ -69,7 +69,7 @@ listevt$startAt <- as.Date(listevt$startAt, "%Y-%m-%d")
 listevt$weekDay <- format(listevt$startAt, "%A")
 listevt$weekDay <- factor (listevt$weekDay, levels = c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"))
 
-# Calcul du code postal et du dÃ©partementn à partir de l'adresse
+# Calcul du code postal et du département à partir de l'adresse
 r <- regexpr('[0-9]{5}',listevt$node.fullAddress)
 r2 <- r +5
 listevt$CP[r != -1] <- substr(listevt$node.fullAddress[r != -1], r[r != -1], r2[r != -1])
@@ -116,6 +116,6 @@ mmots <- as.matrix(dtm)
 tmots <- sort(rowSums(mmots),decreasing=TRUE)
 dfmots <- data.frame(word = names(tmots),freq=tmots)
 
-
+# Sauvegarde dans un fichier "cache"
 save(listevt,totalcount, dfmots, file=filecache)
 
