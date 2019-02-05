@@ -31,7 +31,9 @@ require(wordcloud)
 
 # Chargement des données
 filecache <- "cache/listevt.Rdata"
-if (!file.exists(filecache) | difftime(Sys.time(),file.info(filecache)$mtime) > 60)
+timeout_cache <- 90
+
+if (!file.exists(filecache) | difftime(Sys.time(),file.info(filecache)$mtime) > timeout_cache)
     source("readdata.R") else
       load(filecache)
 
@@ -120,7 +122,7 @@ dt %>%
 ```{r histo_weekdays, echo=FALSE}
 dt <- listevt %>% count (weekDay)
 plot_ly(dt, x=~weekDay, y=~n) %>% 
-  layout(yaxis = list(title="Nombre d'Ã©vÃ©nements"), xaxis = list(title=""))
+  layout(yaxis = list(title="Nombre d'événements"), xaxis = list(title=""))
 ```
 
 Détails par commune
@@ -146,7 +148,7 @@ Row
 set.seed(1234)
 wordcloud(words = dfmots$word, freq = dfmots$freq, min.freq = 1,
           max.words=200, random.order=FALSE, rot.per=0.35, 
-          colors=brewer.pal(8, "Dark2"))
+          colors=brewer.pal(8, "Accent"))
 ```
 
 
