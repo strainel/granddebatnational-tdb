@@ -7,40 +7,8 @@ filecache <- "cache/listevt.Rdata"
 # Définition des paramétres --------------------------------------------------
 
 url <- "https://granddebat.fr/graphql/internal"
-query <- "query EventRefetchRefetchQuery($cursor: String, $count: Int, $theme: ID, $project: ID, $userType: ID, $search: String, $isFuture: Boolean) {
-events(first: $count, after: $cursor, theme: $theme, project: $project, search: $search, userType: $userType, isFuture: $isFuture) {
-totalCount
-edges {
-node {
-id
-lat
-lng
-url
-fullAddress
-createdAt
-startAt
-endAt
-title
-fullAddress
-url
-themes {
-id
-title
-url
-}
-__typename
-}
-cursor
-}
-pageInfo {
-hasPreviousPage
-hasNextPage
-startCursor
-endCursor
-}
-}
-}"
-query_variables <- '{"cursor": null,"count": 4000,"theme": null,"project": null,"userType": null,"search": null,"isFuture": null}'
+query <- "query EventRefetchRefetchQuery($cursor: String, $count: Int, $theme: ID, $project: ID, $userType: ID, $search: String, $isFuture: Boolean) { events(first: $count, after: $cursor, theme: $theme, project: $project, search: $search, userType: $userType, isFuture: $isFuture) { totalCount edges { node { id lat lng url fullAddress createdAt startAt endAt title fullAddress url themes { id title url } __typename } cursor } pageInfo { hasPreviousPage hasNextPage startCursor endCursor } } }"
+query_variables <- '{"cursor": null,"count": 5000,"theme": null,"project": null,"userType": null,"search": null,"isFuture": null}'
 
 pbody <- list(query = query, variables = query_variables)
 res <- POST(url, body = pbody, encode="json")
