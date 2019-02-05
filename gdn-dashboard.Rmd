@@ -26,6 +26,8 @@ require(metricsgraphics)
 require(RColorBrewer)
 require(plotly)
 require(DT)
+require(SnowballC)
+require(wordcloud)
 
 # Chargement des données
 filecache <- "cache/listevt.Rdata"
@@ -131,6 +133,22 @@ Row
 ```{r dtcity, echo=FALSE}
 datatable(dtcity, options=list(pageLength = 10))
 ```
+
+
+Nuage de mots
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+### Mots les plus présents dans les titres des événements
+
+```{r wordcloud, echo=FALSE}
+set.seed(1234)
+wordcloud(words = dfmots$word, freq = dfmots$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
 
 Crédits
 =======================================================================

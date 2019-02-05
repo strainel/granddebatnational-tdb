@@ -87,5 +87,35 @@ listevt$Commune[r != -1] <- toupper(substr(listevt$node.fullAddress[r != -1], r2
 #test <- listevt %>%
 #  left_join(repcommune, by = "CP")
 
-save(listevt,totalcount, file=filecache)
+# Ne pas charger trop tôt le module tm car fonction "content" masqué
+require(tm)
+
+# Construction du corpus de mot sur les titres
+docs <- Corpus(VectorSource(listevt$node.title))
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+docs <- tm_map(docs, toSpace, "/")
+docs <- tm_map(docs, toSpace, "@")
+docs <- tm_map(docs, toSpace, "\\|")
+# Convertir le texte en minuscule
+docs <- tm_map(docs, content_transformer(tolower))
+# Supprimer les nombres
+docs <- tm_map(docs, removeNumbers)
+# Supprimer les mots vides anglais
+docs <- tm_map(docs, removeWords, stopwords("french"))
+# Supprimer votre propre liste de mots non désirés
+#docs <- tm_map(docs, removeWords, c("blabla1", "blabla2")) 
+# Supprimer les ponctuations
+docs <- tm_map(docs, removePunctuation)
+# Supprimer les espaces vides supplémentaires
+docs <- tm_map(docs, stripWhitespace)
+# Text stemming
+# docs <- tm_map(docs, stemDocument)
+
+dtm <- TermDocumentMatrix(docs)
+mmots <- as.matrix(dtm)
+tmots <- sort(rowSums(mmots),decreasing=TRUE)
+dfmots <- data.frame(word = names(tmots),freq=tmots)
+
+
+save(listevt,totalcount, dfmots, file=filecache)
 
