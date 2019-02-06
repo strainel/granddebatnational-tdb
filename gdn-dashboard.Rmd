@@ -31,11 +31,11 @@ require(wordcloud)
 
 # Chargement des données
 filecache <- "cache/listevt.Rdata"
-timeout_cache <- 90
+timeout_cache <- 90 # durée de vie du fichier dans le cache
 
-if (!file.exists(filecache) | difftime(Sys.time(),file.info(filecache)$mtime) > timeout_cache)
-    source("readdata.R") else
-      load(filecache)
+if (file.exists(filecache) & difftime(Sys.time(),file.info(filecache)$mtime) < 1/24/60*timeout_cache)
+    load(filecache) else
+      source("readdata.R") 
 
 weekDaysOrder = c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche")
 
@@ -98,7 +98,7 @@ dt %>%
 dt <- as.numeric(format(strptime(listevt$node.createdAt, format="%Y-%m-%d %H:%M:%S"), "%H"))
 mjs_plot(dt, width=500, height=400) %>%
   mjs_histogram(bar_margin=2) %>%
-  mjs_labs(x_label="Heure",y_label="Nombre d'Ã©vÃ©nements")
+  mjs_labs(x_label="Heure",y_label="Nombre d'événements")
 ```
 
 
@@ -154,6 +154,11 @@ wordcloud(words = dfmots$word, freq = dfmots$freq, min.freq = 1,
 
 Crédits
 =======================================================================
+
+### Données
+```{r , echo=FALSE}
+file.info(filecache)$mtime
+```
 
 ### Quelques remerciements
 
