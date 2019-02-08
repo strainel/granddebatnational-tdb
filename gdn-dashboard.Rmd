@@ -29,11 +29,14 @@ require(DT)
 require(SnowballC)
 require(wordcloud)
 
+# Pour la carte Leaflet
+require (leaflet)
+
 # Chargement des données
 filecache <- "cache/listevt.Rdata"
-timeout_cache <- 90 # durée de vie du fichier dans le cache
+timeout_cache <- 3*60 # durée de vie en minute du fichier dans le cache
 
-if (file.exists(filecache) & difftime(Sys.time(),file.info(filecache)$mtime) < 1/24/60*timeout_cache)
+if (file.exists(filecache) & difftime(Sys.time(),file.info(filecache)$mtime) < timeout_cache)
     load(filecache) else
       source("readdata.R") 
 
@@ -136,6 +139,12 @@ Row
 datatable(dtcity, options=list(pageLength = 10))
 ```
 
+### Cartographie des événements
+```{r map, echo=FALSE}
+leaflet(data = listevt) %>% addTiles() %>%
+  addMarkers(~node.lng, ~node.lat, label = ~as.character(node.title),  clusterOptions = markerClusterOptions())
+```
+
 
 Nuage de mots
 =======================================================================
@@ -146,8 +155,8 @@ Row
 
 ```{r wordcloud, echo=FALSE}
 set.seed(1234)
-wordcloud(words = dfmots$word, freq = dfmots$freq, min.freq = 1,
-          max.words=200, random.order=FALSE, rot.per=0.35, 
+wordcloud(words = dfmots$word, freq = dfmots$freq, min.freq = 5,
+          max.words=150, random.order=FALSE, rot.per=0.35, 
           colors=brewer.pal(8, "Accent"))
 ```
 
@@ -155,12 +164,13 @@ wordcloud(words = dfmots$word, freq = dfmots$freq, min.freq = 1,
 Crédits
 =======================================================================
 
-### Données
+### Mise à jour des données
 ```{r , echo=FALSE}
-file.info(filecache)$mtime
+count <- format(file.info(filecache)$mtime, format="%d/%m/%Y %H:%M")
+valueBox(count, icon = "fa-calendar")
 ```
 
-### Quelques remerciements
+### Remerciements
 
 - Christophe B. pour son aide sur [GraphQL](https://graphql.org/).
-- Les développeurs des packages [htmlwidgets](https://www.htmlwidgets.org/) et [metricsgraphics](https://metricsgraphicsjs.org/).
+- Les développeurs des packages [htmlwidgets](https://www.htmlwidgets.org/),  [metricsgraphics](https://metricsgraphicsjs.org/) et [leaflet](https://leafletjs.com/).
