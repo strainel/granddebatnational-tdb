@@ -33,12 +33,14 @@ require(wordcloud)
 require (leaflet)
 
 # Chargement des données
+
 filecache <- "cache/listevt.Rdata"
 timeout_cache <- 3*60 # durée de vie en minute du fichier dans le cache
 
-if (file.exists(filecache) & difftime(Sys.time(),file.info(filecache)$mtime) < timeout_cache)
-    load(filecache) else
-      source("readdata.R") 
+if (file.exists(filecache)) {
+  load(filecache)
+  if (difftime(Sys.time(),file.info(filecache)$mtime) > timeout_cache) source("readdata.R")
+  } else source("readdata.R")
 
 weekDaysOrder = c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche")
 
